@@ -1,58 +1,35 @@
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Random;
 
 public class Main {
     public static void main(String args[]) {
-        int p, q, n, z, d = 0, e, i;
+        // Two large prime numbers p and q
+        String stringMessage = "Hello cat!";
+        BigInteger p, q, n, e, phi, d, m = new BigInteger(stringMessage.getBytes()), c;
+        //n, z, d = 0, e, i;
 
-        String message = "Hello world";
+        int bitLength = 512;
+        p = largePrime(bitLength);
+        q = largePrime(bitLength);
 
-        // The number to be encrypted and decrypted (should be string)
-        BigInteger msg = new BigInteger(message.getBytes());
-        double c;
-        BigInteger msgback;
+        n = p.multiply(q);
 
-        // 1st prime number p
-        p = 3;
+        phi = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
 
-        // 2nd prime number q
-        q = 11;
-        n = p * q;
-        z = (p - 1) * (q - 1);
-        System.out.println("the value of z = " + z);
+        // 4. Find an int e such that 1 < e < Phi(n) 	and gcd(e,Phi) = 1
+        e = genE(phi);
 
-        for(e = 2; e < z; e++) {
+        d = e.modInverse(phi);
 
-            // e is for public key exponent
-            if(gcd(e, z) == 1) {
-                break;
-            }
-        }
-        System.out.println("the value of e = " + e);
-        for (i = 0; i <= 9; i++) {
-            int x = 1 + (i * z);
-
-            // d is for private key exponent
-            if (x % e == 0) {
-                d = x / e;
-                break;
-            }
-        }
-
-        System.out.println("the value of d = " + d);
-        c = (Math.pow(msg.doubleValue(), e)) % n;
-        System.out.println("Encrypted message is: " + c);
-
-        // converting int value of n to BigInteger
-        BigInteger N = BigInteger.valueOf(n);
-
-        // converting float value of c to BigInteger
-        BigInteger C = BigDecimal.valueOf(c).toBigInteger();
-        msgback = (C.pow(d)).mod(N);
-        String stringMessage = new String(msgback.toByteArray());
-        System.out.println("Decrypted message is: " + stringMessage);
+        c = m.modPow(e, n);
 
 
+        //Decrypt
+
+        m = c.modPow(d, n);
+
+        System.out.println(new String(m.toByteArray()));
     }
 
 
@@ -64,4 +41,24 @@ public class Main {
             return gcd(z % e, e);
 
     }
+
+    // function returns a BigInteger which is a prime number that is bitLength large.
+    private static BigInteger largePrime(int bitLength) {
+        Random randomInt = new Random();
+        return BigInteger.probablePrime(bitLength, randomInt);
+    }
+
+    public static BigInteger genE(BigInteger phi) {
+        Random rand = new Random();
+        BigInteger e = new BigInteger(1024, rand);
+        do {
+            e = new BigInteger(1024, rand);
+            while (e.min(phi).equals(phi)) { // while phi is smaller than e, look for a new e
+                e = new BigInteger(1024, rand);
+            }
+        } while (!e.gcd(phi).equals(BigInteger.ONE)); // if gcd(e,phi) isnt 1 then stay in loop
+        return e;
+
+    }
+
 }
