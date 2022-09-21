@@ -1,35 +1,60 @@
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String args[]) {
-        // Two large prime numbers p and q
-        String stringMessage = "Hello cat!";
-        BigInteger p, q, n, e, phi, d, m = new BigInteger(stringMessage.getBytes()), c;
-        //n, z, d = 0, e, i;
 
+        Scanner input = new Scanner(System.in);
+
+        System.out.println("Enter message to be encrypted:");
+
+        String stringMessage = input.nextLine();
+        // Declare BigInteger variables
+        BigInteger p, q, n, e, phi, d, c;
+        //n, z, d = 0, e, i;
+        //Convert string to bytes
+        BigInteger  m = new BigInteger(stringMessage.getBytes());
+
+        // bit length for large prime numbers
         int bitLength = 512;
+        //create 2 large prime numbers with length bitLength
         p = largePrime(bitLength);
         q = largePrime(bitLength);
 
+        //compute n
         n = p.multiply(q);
 
+        // Compute phi = (p - 1)(q - 1)
         phi = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
 
-        // 4. Find an int e such that 1 < e < Phi(n) 	and gcd(e,Phi) = 1
+        // Find the encryption exponent e such that 1 < e < Phi(n) and gcd(e,Phi) = 1
         e = genE(phi);
 
+        // calculate the decryption exponent d
         d = e.modInverse(phi);
 
+        // c = the encrypted message
         c = m.modPow(e, n);
 
-
-        //Decrypt
-
+        //Decrypt the message using d
         m = c.modPow(d, n);
 
-        System.out.println(new String(m.toByteArray()));
+        //Output
+        outputVariables(p, q, n, phi, e, d, c, m, new String(m.toByteArray()));
+    }
+
+    private static void outputVariables(BigInteger p, BigInteger q, BigInteger n, BigInteger phi, BigInteger e, BigInteger d, BigInteger c, BigInteger m, String s) {
+        System.out.println("Prime number p: " + p.toString());
+        System.out.println("Prime number q: " + q.toString());
+        System.out.println("n (p * q): " + n.toString());
+        System.out.println("Phi: " + phi.toString());
+        System.out.println("Public key e: " + e.toString());
+        System.out.println("Private key d: " + d.toString());
+        System.out.println("Encrypted message c: " + c.toString());
+        System.out.println("Decrypted message m (BigInteger) " + m.toString());
+        System.out.println("Decrypted message (String): " + s);
     }
 
 
@@ -58,7 +83,5 @@ public class Main {
             }
         } while (!e.gcd(phi).equals(BigInteger.ONE)); // if gcd(e,phi) isnt 1 then stay in loop
         return e;
-
     }
-
 }
