@@ -12,8 +12,8 @@ public class SecureAdditionServer {
 	private int port;
 	// This is not a reserved port number
 	static final int DEFAULT_PORT = 8189;
-	static final String KEYSTORE = "Lab3/server/LIUkeystore.ks";
-	static final String TRUSTSTORE = "Lab3/server/LIUtruststore.ks";
+	static final String KEYSTORE = "./server/LIUkeystore.ks";
+	static final String TRUSTSTORE = "./server/LIUtruststore.ks";
 	static final String KEYSTOREPASS = "123456";
 	static final String TRUSTSTOREPASS = "abcdef";
 	public final static int fileSize = 6022386; // hardcoded- to be changes
@@ -64,6 +64,7 @@ public class SecureAdditionServer {
 					fileDownload(fileInputStream, socketIn, socketOut, fileName);
 					break;
 				case 2:
+					System.out.println("hej");
 					fileUpload(fileOutputStream, socketIn, socketOut, fileName);
 					break;
 				case 3:
@@ -87,30 +88,38 @@ public class SecureAdditionServer {
 			String fileName) throws IOException{
 				fileName = socketIn.readUTF();
 
-				File f = new File("./" + fileName);
+				File f = new File("./server/" + fileName);
 
 				f.delete();
 	}
 
 	private void fileUpload(FileOutputStream fileOutputStream, DataInputStream socketIn, DataOutputStream socketOut,
 			String fileName) throws IOException{
-				fileName = socketIn.readUTF();
-				
-				int fileLength = socketIn.readInt();
-				byte[] fileData = new byte[fileLength];
 
-				fileOutputStream = new FileOutputStream(new File("./" + fileName));
-				socketIn.read(fileData);
-				fileOutputStream.write(fileData);
-				
-				fileOutputStream.close();	
+			fileName = socketIn.readUTF();
+
+			int fileLength = socketIn.readInt();
+			System.out.println(fileLength);
+			byte[] fileData = new byte[fileLength];
+
+			File f = new File("./server" + fileName);
+			f.createNewFile();
+			System.out.println("hej");
+			fileOutputStream = new FileOutputStream("/home/hugo/Skola/TNM031/Lab3/server/" + fileName);
+			socketIn.read(fileData);
+
+			System.out.println("Data:" + fileData.toString());
+
+			fileOutputStream.write(fileData);
+
+			fileOutputStream.close();
 	}
 
 	private void fileDownload(FileInputStream fileInputStream, DataInputStream socketIn, DataOutputStream socketOut,
 			String fileName) throws IOException{
 			fileName = socketIn.readUTF();
 
-			fileInputStream = new FileInputStream(new File("./" + fileName));
+			fileInputStream = new FileInputStream("./server/" + fileName);
 			
 			byte[] fileData = new byte[fileInputStream.available()];
 

@@ -11,8 +11,8 @@ public class SecureAdditionClient {
 	private int port;
 	// This is not a reserved port number 
 	static final int DEFAULT_PORT = 8189;
-	static final String KEYSTORE = "Lab3/client/LIUkeystore.ks";
-	static final String TRUSTSTORE = "Lab3/client/LIUtruststore.ks";
+	static final String KEYSTORE = "./client/LIUkeystore.ks";
+	static final String TRUSTSTORE = "./client/LIUtruststore.ks";
 	static final String KEYSTOREPASS = "123456";
 	static final String TRUSTSTOREPASS = "abcdef";
   
@@ -99,7 +99,7 @@ public class SecureAdditionClient {
 			}
 		}
 		catch( Exception x ) {
-			System.out.println( x );
+			System.out.println(x);
 			x.printStackTrace();
 		}
 	}
@@ -132,7 +132,7 @@ public class SecureAdditionClient {
 		int fileLength = socketIn.readInt();
 		byte[] fileData = new byte[fileLength];
 
-		fos = new FileOutputStream(new File("./" + fileName));
+		fos = new FileOutputStream("./client/" + fileName);
 
 		int counter;
 
@@ -155,12 +155,12 @@ public class SecureAdditionClient {
 		int fileLength = socketIn.readInt();
 		byte[] fileData = new byte[fileLength];
 
-		fis = new FileInputStream(new File("./" + fileName));
+		fis = new FileInputStream("./client/" + fileName);
 
 		fileData = new byte[fis.available()];
 		fis.read(fileData);
 
-		socketOut.writeInt(inputValue);
+		//socketOut.writeInt(inputValue);
 		socketOut.writeUTF(fileName);
 		socketOut.writeInt(fileData.length);
 		socketOut.write(fileData);
