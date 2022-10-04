@@ -12,10 +12,11 @@ public class SecureAdditionServer {
 	private int port;
 	// This is not a reserved port number
 	static final int DEFAULT_PORT = 8189;
-	static final String KEYSTORE = "C:\\Users\\Hugo\\Skola\\TNM031\\Lab3\\server\\LIUkeystore.ks";
-	static final String TRUSTSTORE = "C:\\Users\\Hugo\\Skola\\TNM031\\Lab3\\server\\LIUtruststore.ks";
+	static final String KEYSTORE = "Lab3/server/LIUkeystore.ks";
+	static final String TRUSTSTORE = "Lab3/server/LIUtruststore.ks";
 	static final String KEYSTOREPASS = "123456";
 	static final String TRUSTSTOREPASS = "abcdef";
+	public final static int fileSize = 6022386; // hardcoded- to be changes
 	
 	/** Constructor
 	 * @param port The port where the server
@@ -49,24 +50,30 @@ public class SecureAdditionServer {
 			System.out.println("\n>>>> SecureAdditionServer: active ");
 			SSLSocket incoming = (SSLSocket)sss.accept();
 
-      BufferedReader in = new BufferedReader( new InputStreamReader( incoming.getInputStream() ) );
-			PrintWriter out = new PrintWriter( incoming.getOutputStream(), true );			
-			
-			String str;
-			while ( !(str = in.readLine()).equals("") ) {
-				double result = 0;
-				StringTokenizer st = new StringTokenizer( str );
-				try {
-					while( st.hasMoreTokens() ) {
-						Double d = new Double( st.nextToken() );
-						result += d.doubleValue();
-					}
-					out.println( "The result is " + result );
-				}
-				catch( NumberFormatException nfe ) {
-					out.println( "Sorry, your list contains an invalid number" );
-				}
+			DataInputStream socketIn = new DataInputStream(incoming.getInputStream());
+			DataOutputStream socketOut = new DataOutputStream(incoming.getOutputStream());
+			FileInputStream fileInputStream = null;
+			FileOutputStream fileOutputStream = null;
+
+			int option = socketIn.readInt();
+			System.out.println("Option: " + option);
+			String fileName = "";    
+
+			switch (option) {
+				case 1:
+					fileDownload(fileInputStream, socketIn, socketOut, fileName);
+					break;
+				case 2:
+					fileUpload(fileOutputStream, socketIn, socketOut, fileName);
+					break;
+				case 3:
+					fileDeletion(fileInputStream, socketIn, socketOut, fileName);
+					break;
+
+
 			}
+			
+			//close socket
 			incoming.close();
 		}
 		catch( Exception x ) {
@@ -76,6 +83,44 @@ public class SecureAdditionServer {
 	}
 	
 	
+	private void fileDeletion(FileInputStream fileInputStream, DataInputStream socketIn, DataOutputStream socketOut,
+			String fileName) throws IOException{
+				fileName = socketIn.readUTF();
+
+				File f = new File("./" + fileName);
+
+				f.delete();
+	}
+
+	private void fileUpload(FileOutputStream fileOutputStream, DataInputStream socketIn, DataOutputStream socketOut,
+			String fileName) throws IOException{
+				fileName = socketIn.readUTF();
+				
+				int fileLength = socketIn.readInt();
+				byte[] fileData = new byte[fileLength];
+
+				fileOutputStream = new FileOutputStream(new File("./" + fileName));
+				socketIn.read(fileData);
+				fileOutputStream.write(fileData);
+				
+				fileOutputStream.close();	
+	}
+
+	private void fileDownload(FileInputStream fileInputStream, DataInputStream socketIn, DataOutputStream socketOut,
+			String fileName) throws IOException{
+			fileName = socketIn.readUTF();
+
+			fileInputStream = new FileInputStream(new File("./" + fileName));
+			
+			byte[] fileData = new byte[fileInputStream.available()];
+
+			fileInputStream.read(fileData);
+			fileInputStream.close();
+
+			socketOut.writeInt(fileData.length);
+			socketOut.write(fileData);
+	}
+
 	/** The test method for the class
 	 * @param args[0] Optional port number in place of
 	 *        the default

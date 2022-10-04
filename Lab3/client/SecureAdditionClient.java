@@ -11,8 +11,8 @@ public class SecureAdditionClient {
 	private int port;
 	// This is not a reserved port number 
 	static final int DEFAULT_PORT = 8189;
-	static final String KEYSTORE = "C:\\Users\\Hugo\\Skola\\TNM031\\Lab3\\client\\LIUkeystore.ks";
-	static final String TRUSTSTORE = "C:\\Users\\Hugo\\Skola\\TNM031\\Lab3\\client\\LIUtruststore.ks";
+	static final String KEYSTORE = "Lab3/client/LIUkeystore.ks";
+	static final String TRUSTSTORE = "Lab3/client/LIUtruststore.ks";
 	static final String KEYSTOREPASS = "123456";
 	static final String TRUSTSTOREPASS = "abcdef";
   
@@ -47,9 +47,8 @@ public class SecureAdditionClient {
 			System.out.println("\n>>>> SSL/TLS handshake completed");
 
 			
-			BufferedReader socketIn;
-			socketIn = new BufferedReader( new InputStreamReader( client.getInputStream() ) );
-			PrintWriter socketOut = new PrintWriter( client.getOutputStream(), true );
+			DataInputStream socketIn = new DataInputStream( client.getInputStream());
+			DataOutputStream socketOut = new DataOutputStream( client.getOutputStream() );
 
 			//Get input from terminal
 			//BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -63,37 +62,41 @@ public class SecureAdditionClient {
 			}else{
 				throw new Exception("Input a number between 1-3");
 			}
-
+			
 			//declare file reader and writer
-			FileInputStream fileInputStream;
-			FileOutputStream fileOutputStream;
+			FileInputStream fileInputStream = null;
+			FileOutputStream fileOutputStream = null;
 
+
+			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 			String fileName;
 			//Check what user wants to do
 			switch (inputValue) {
 				case 1:
-					fileName = sc.nextLine();
-					downloadFile(fileName);
+					//DownloadFile
+					System.out.print("Enter filename");
+					fileName = reader.readLine();
+					downloadFile(fileName, fileOutputStream, socketIn,socketOut, inputValue);
 					break;
+
 				case 2:
 					//uploadFile();
+					System.out.println("Enter filename");
+					fileName = reader.readLine();
+					uploadFile(fileName, fileInputStream, socketIn, socketOut, inputValue);
 					break;
+
 				case 3:
 					//deleteFile();
+					System.out.println("Enter filename");
+					fileName = reader.readLine();
+					deleteFile(fileName, fileInputStream, socketIn, socketOut, inputValue);
 					break;
+
 				default:
 					throw new Exception("Input a number between 1-3");
 
 			}
-
-			//Send input to server
-
-			String numbers = "1.2 3.4 5.6";
-			System.out.println( ">>>> Sending the numbers " + numbers+ " to SecureAdditionServer" );
-			socketOut.println( numbers );
-			System.out.println( socketIn.readLine() );
-
-			socketOut.println ( "" );
 		}
 		catch( Exception x ) {
 			System.out.println( x );
@@ -122,8 +125,59 @@ public class SecureAdditionClient {
 		}
 	}
 
-	private void downloadFile(String fileName, FileOutputStream fileOutputStream, DataOutputStream socketOut) {
+	private void downloadFile(String fileName,  FileOutputStream fos, DataInputStream socketIn, DataOutputStream socketOut, int inputValue) throws IOException{
+		socketOut.writeInt(inputValue);
+		socketOut.writeUTF(fileName);
 
+		int fileLength = socketIn.readInt();
+		byte[] fileData = new byte[fileLength];
+
+		fos = new FileOutputStream(new File("./" + fileName));
+
+		int counter;
+
+		while((counter = socketIn.read(fileData)) >= 0) {
+
+			fos.write(fileData, 0, counter);
+		}
+
+		fos.close();
+
+		System.out.println("The file has been downloaded");
+		
+	}
+
+	private void uploadFile(String fileName,  FileInputStream fis, DataInputStream socketIn, DataOutputStream socketOut, int inputValue) throws IOException{
+
+		socketOut.writeInt(inputValue);
+		socketOut.writeUTF(fileName);
+
+		int fileLength = socketIn.readInt();
+		byte[] fileData = new byte[fileLength];
+
+		fis = new FileInputStream(new File("./" + fileName));
+
+		fileData = new byte[fis.available()];
+		fis.read(fileData);
+
+		socketOut.writeInt(inputValue);
+		socketOut.writeUTF(fileName);
+		socketOut.writeInt(fileData.length);
+		socketOut.write(fileData);
+
+		fis.close();
+
+
+		System.out.println("The file has been upload");
+	}
+
+	private void deleteFile(String fileName,  FileInputStream fis, DataInputStream socketIn, DataOutputStream socketOut, int inputValue) throws IOException{
+
+		socketOut.writeInt(inputValue);
+		socketOut.writeUTF(fileName);
+
+
+		System.out.println("The file has been deleted");
 	}
 
 }
