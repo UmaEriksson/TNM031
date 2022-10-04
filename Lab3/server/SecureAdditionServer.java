@@ -12,8 +12,8 @@ public class SecureAdditionServer {
 	private int port;
 	// This is not a reserved port number
 	static final int DEFAULT_PORT = 8189;
-	static final String KEYSTORE = "LIUkeystore.ks";
-	static final String TRUSTSTORE = "LIUtruststore.ks";
+	static final String KEYSTORE = "C:\\Users\\Hugo\\Skola\\TNM031\\Lab3\\server\\LIUkeystore.ks";
+	static final String TRUSTSTORE = "C:\\Users\\Hugo\\Skola\\TNM031\\Lab3\\server\\LIUtruststore.ks";
 	static final String KEYSTOREPASS = "123456";
 	static final String TRUSTSTOREPASS = "abcdef";
 	

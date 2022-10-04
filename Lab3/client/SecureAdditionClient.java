@@ -3,6 +3,7 @@
 import java.io.*;
 import java.net.*;
 import java.security.KeyStore;
+import java.util.Scanner;
 import javax.net.ssl.*;
 
 public class SecureAdditionClient {
@@ -10,8 +11,8 @@ public class SecureAdditionClient {
 	private int port;
 	// This is not a reserved port number 
 	static final int DEFAULT_PORT = 8189;
-	static final String KEYSTORE = "LIUkeystore.ks";
-	static final String TRUSTSTORE = "LIUtruststore.ks";
+	static final String KEYSTORE = "C:\\Users\\Hugo\\Skola\\TNM031\\Lab3\\client\\LIUkeystore.ks";
+	static final String TRUSTSTORE = "C:\\Users\\Hugo\\Skola\\TNM031\\Lab3\\client\\LIUtruststore.ks";
 	static final String KEYSTOREPASS = "123456";
 	static final String TRUSTSTOREPASS = "abcdef";
   
@@ -49,7 +50,44 @@ public class SecureAdditionClient {
 			BufferedReader socketIn;
 			socketIn = new BufferedReader( new InputStreamReader( client.getInputStream() ) );
 			PrintWriter socketOut = new PrintWriter( client.getOutputStream(), true );
-			
+
+			//Get input from terminal
+			//BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+			System.out.println("Do you want to\n 1. Download file \n 2. Upload file \n 3. Delete file\n from/to/on the server\n");
+
+			//Parse input
+			Scanner sc = new Scanner(System.in);
+			int inputValue;
+			if(sc.hasNextInt()){
+				inputValue = sc.nextInt();
+			}else{
+				throw new Exception("Input a number between 1-3");
+			}
+
+			//declare file reader and writer
+			FileInputStream fileInputStream;
+			FileOutputStream fileOutputStream;
+
+			String fileName;
+			//Check what user wants to do
+			switch (inputValue) {
+				case 1:
+					fileName = sc.nextLine();
+					downloadFile(fileName);
+					break;
+				case 2:
+					//uploadFile();
+					break;
+				case 3:
+					//deleteFile();
+					break;
+				default:
+					throw new Exception("Input a number between 1-3");
+
+			}
+
+			//Send input to server
+
 			String numbers = "1.2 3.4 5.6";
 			System.out.println( ">>>> Sending the numbers " + numbers+ " to SecureAdditionServer" );
 			socketOut.println( numbers );
@@ -83,4 +121,9 @@ public class SecureAdditionClient {
 			uhx.printStackTrace();
 		}
 	}
+
+	private void downloadFile(String fileName, FileOutputStream fileOutputStream, DataOutputStream socketOut) {
+
+	}
+
 }
