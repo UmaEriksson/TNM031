@@ -51,7 +51,6 @@ public class SecureAdditionClient {
 			DataOutputStream socketOut = new DataOutputStream( client.getOutputStream() );
 
 			//Get input from terminal
-			//BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 			System.out.println("Do you want to\n 1. Download file \n 2. Upload file \n 3. Delete file\n from/to/on the server\n");
 
 			//Parse input
@@ -62,11 +61,6 @@ public class SecureAdditionClient {
 			}else{
 				throw new Exception("Input a number between 1-3");
 			}
-			
-			//declare file reader and writer
-			FileInputStream fileInputStream = null;
-			FileOutputStream fileOutputStream = null;
-
 
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 			String fileName;
@@ -76,7 +70,7 @@ public class SecureAdditionClient {
 					//DownloadFile
 					System.out.print("Enter filename\n");
 					fileName = reader.readLine();
-					downloadFile(fileName, fileOutputStream, socketIn,socketOut, inputValue);
+					downloadFile(fileName, socketIn,socketOut, inputValue);
 					break;
 
 				case 2:
@@ -90,7 +84,7 @@ public class SecureAdditionClient {
 					//deleteFile();
 					System.out.println("Enter filename");
 					fileName = reader.readLine();
-					deleteFile(fileName, fileInputStream, socketIn, socketOut, inputValue);
+					deleteFile(fileName, socketOut, inputValue);
 					break;
 
 				default:
@@ -125,7 +119,7 @@ public class SecureAdditionClient {
 		}
 	}
 
-	private void downloadFile(String fileName,  FileOutputStream fos, DataInputStream socketIn, DataOutputStream socketOut, int inputValue) throws IOException{
+	private void downloadFile(String fileName, DataInputStream socketIn, DataOutputStream socketOut, int inputValue) throws IOException{
 		//write option and filename to server
 		socketOut.writeInt(inputValue);
 		socketOut.writeUTF(fileName);
@@ -136,7 +130,7 @@ public class SecureAdditionClient {
 		socketIn.read(fileData);
 
 		//write data to file
-		fos = new FileOutputStream("./client/" + fileName);
+		FileOutputStream fos = new FileOutputStream("./client/" + fileName);
 		fos.write(fileData);
 		fos.close();
 
@@ -161,7 +155,7 @@ public class SecureAdditionClient {
 		System.out.println("The file has been upload");
 	}
 
-	private void deleteFile(String fileName,  FileInputStream fis, DataInputStream socketIn, DataOutputStream socketOut, int inputValue) throws IOException{
+	private void deleteFile(String fileName, DataOutputStream socketOut, int inputValue) throws IOException{
 		//send name of file to delete to server
 		socketOut.writeInt(inputValue);
 		socketOut.writeUTF(fileName);

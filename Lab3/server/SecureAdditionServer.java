@@ -50,23 +50,20 @@ public class SecureAdditionServer {
 
 			DataInputStream socketIn = new DataInputStream(incoming.getInputStream());
 			DataOutputStream socketOut = new DataOutputStream(incoming.getOutputStream());
-			FileInputStream fileInputStream = null;
-			FileOutputStream fileOutputStream = null;
 
 			int option = socketIn.readInt();
 			System.out.println("Option: " + option);
-			String fileName = "";    
 
 			switch (option) {
 				case 1:
-					fileDownload(fileInputStream, socketIn, socketOut, fileName);
+					fileDownload(socketIn, socketOut);
 					break;
 				case 2:
 					System.out.println("hej");
 					fileUpload(socketIn);
 					break;
 				case 3:
-					fileDeletion(fileInputStream, socketIn, socketOut, fileName);
+					fileDeletion(socketIn);
 					break;
 
 
@@ -82,13 +79,11 @@ public class SecureAdditionServer {
 	}
 	
 	
-	private void fileDeletion(FileInputStream fileInputStream, DataInputStream socketIn, DataOutputStream socketOut,
-			String fileName) throws IOException{
-				fileName = socketIn.readUTF();
-
-				File f = new File("./server/" + fileName);
-
-				f.delete();
+	private void fileDeletion(DataInputStream socketIn) throws IOException{
+		//delete file on server
+		String fileName = socketIn.readUTF();
+		File f = new File("./server/" + fileName);
+		f.delete();
 	}
 
 	private void fileUpload(DataInputStream socketIn) throws IOException{
@@ -109,18 +104,16 @@ public class SecureAdditionServer {
 		fileOutputStream.close();
 	}
 
-	private void fileDownload(FileInputStream fileInputStream, DataInputStream socketIn, DataOutputStream socketOut,
-			String fileName) throws IOException{
+	private void fileDownload(DataInputStream socketIn, DataOutputStream socketOut) throws IOException{
+		//find client desired file and read data
+		String fileName = socketIn.readUTF();
+		FileInputStream fileInputStream = new FileInputStream("./server/" + fileName);
+		byte[] fileData = fileInputStream.readAllBytes();
+		fileInputStream.close();
 
-			//find client desired file and read data
-			fileName = socketIn.readUTF();
-			fileInputStream = new FileInputStream("./server/" + fileName);
-			byte[] fileData = fileInputStream.readAllBytes();
-			fileInputStream.close();
-
-			//write file to client
-			socketOut.writeInt(fileData.length);
-			socketOut.write(fileData);
+		//write file to client
+		socketOut.writeInt(fileData.length);
+		socketOut.write(fileData);
 	}
 
 	/** The test method for the class
