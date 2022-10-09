@@ -2,10 +2,8 @@
 // An example class that uses the secure server socket class
 
 import java.io.*;
-import java.net.*;
 import javax.net.ssl.*;
 import java.security.*;
-import java.util.StringTokenizer;
 
 
 public class SecureAdditionServer {
@@ -65,7 +63,7 @@ public class SecureAdditionServer {
 					break;
 				case 2:
 					System.out.println("hej");
-					fileUpload(fileOutputStream, socketIn, socketOut, fileName);
+					fileUpload(socketIn);
 					break;
 				case 3:
 					fileDeletion(fileInputStream, socketIn, socketOut, fileName);
@@ -93,26 +91,22 @@ public class SecureAdditionServer {
 				f.delete();
 	}
 
-	private void fileUpload(FileOutputStream fileOutputStream, DataInputStream socketIn, DataOutputStream socketOut,
-			String fileName) throws IOException{
+	private void fileUpload(DataInputStream socketIn) throws IOException{
+		//read filename from client and create file
+		String fileName = socketIn.readUTF();
+		File f = new File("./server" + fileName);
 
-			fileName = socketIn.readUTF();
+		FileOutputStream fileOutputStream = new FileOutputStream("./server/" + fileName);
 
-			int fileLength = socketIn.readInt();
-			System.out.println(fileLength);
-			byte[] fileData = new byte[fileLength];
+		//read filelength and create new empty byte[]
+		int fileLength = socketIn.readInt();
+		byte[] fileData = new byte[fileLength];
 
-			File f = new File("./server" + fileName);
-			f.createNewFile();
-			System.out.println("hej");
-			fileOutputStream = new FileOutputStream("/home/hugo/Skola/TNM031/Lab3/server/" + fileName);
-			socketIn.read(fileData);
+		//read data from client and write to file on server
+		socketIn.read(fileData);
+		fileOutputStream.write(fileData);
 
-			System.out.println("Data:" + fileData.toString());
-
-			fileOutputStream.write(fileData);
-
-			fileOutputStream.close();
+		fileOutputStream.close();
 	}
 
 	private void fileDownload(FileInputStream fileInputStream, DataInputStream socketIn, DataOutputStream socketOut,

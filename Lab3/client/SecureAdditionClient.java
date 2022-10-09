@@ -2,6 +2,7 @@
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.util.Scanner;
 import javax.net.ssl.*;
@@ -152,21 +153,14 @@ public class SecureAdditionClient {
 		socketOut.writeInt(inputValue);
 		socketOut.writeUTF(fileName);
 
-		int fileLength = socketIn.readInt();
-		byte[] fileData = new byte[fileLength];
-
 		fis = new FileInputStream("./client/" + fileName);
 
-		fileData = new byte[fis.available()];
-		fis.read(fileData);
+		byte[] fileData = fis.readAllBytes();
 
-		//socketOut.writeInt(inputValue);
-		socketOut.writeUTF(fileName);
 		socketOut.writeInt(fileData.length);
 		socketOut.write(fileData);
 
 		fis.close();
-
 
 		System.out.println("The file has been upload");
 	}
