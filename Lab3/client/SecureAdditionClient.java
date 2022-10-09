@@ -27,6 +27,7 @@ public class SecureAdditionClient {
   // The method used to start a client object
 	public void run() {
 		try {
+			// Here the keystore and truststore are created
 			KeyStore ks = KeyStore.getInstance( "JCEKS" );
 			ks.load( new FileInputStream( KEYSTORE ), KEYSTOREPASS.toCharArray() );
 			
@@ -38,15 +39,17 @@ public class SecureAdditionClient {
 			
 			TrustManagerFactory tmf = TrustManagerFactory.getInstance( "SunX509" );
 			tmf.init( ts );
-			
+			// TLS, for extra security
 			SSLContext sslContext = SSLContext.getInstance( "TLS" );
+			// SSL handshake
 			sslContext.init( kmf.getKeyManagers(), tmf.getTrustManagers(), null );
 			SSLSocketFactory sslFact = sslContext.getSocketFactory();      	
 			SSLSocket client =  (SSLSocket)sslFact.createSocket(host, port);
+			//set encryption methods
 			client.setEnabledCipherSuites( client.getSupportedCipherSuites() );
 			System.out.println("\n>>>> SSL/TLS handshake completed");
 
-			
+			//client and server "sockets"
 			DataInputStream socketIn = new DataInputStream( client.getInputStream());
 			DataOutputStream socketOut = new DataOutputStream( client.getOutputStream() );
 

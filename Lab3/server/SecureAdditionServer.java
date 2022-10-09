@@ -27,6 +27,7 @@ public class SecureAdditionServer {
 	/** The method that does the work for the class */
 	public void run() {
 		try {
+			// Here the keystore and truststore are created
 			KeyStore ks = KeyStore.getInstance( "JCEKS" );
 			ks.load( new FileInputStream( KEYSTORE ), KEYSTOREPASS.toCharArray() );
 			
@@ -38,16 +39,20 @@ public class SecureAdditionServer {
 			
 			TrustManagerFactory tmf = TrustManagerFactory.getInstance( "SunX509" );
 			tmf.init( ts );
-			
+
+			// TLS, for extra security
 			SSLContext sslContext = SSLContext.getInstance( "TLS" );
+			// SSL handshake
 			sslContext.init( kmf.getKeyManagers(), tmf.getTrustManagers(), null );
 			SSLServerSocketFactory sslServerFactory = sslContext.getServerSocketFactory();
 			SSLServerSocket sss = (SSLServerSocket) sslServerFactory.createServerSocket( port );
+			//set encryption methods
 			sss.setEnabledCipherSuites( sss.getSupportedCipherSuites() );
 			
 			System.out.println("\n>>>> SecureAdditionServer: active ");
 			SSLSocket incoming = (SSLSocket)sss.accept();
 
+			//client and server "sockets"
 			DataInputStream socketIn = new DataInputStream(incoming.getInputStream());
 			DataOutputStream socketOut = new DataOutputStream(incoming.getOutputStream());
 
