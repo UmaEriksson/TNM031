@@ -111,15 +111,14 @@ public class SecureAdditionServer {
 
 	private void fileDownload(FileInputStream fileInputStream, DataInputStream socketIn, DataOutputStream socketOut,
 			String fileName) throws IOException{
+
+			//find client desired file and read data
 			fileName = socketIn.readUTF();
-
 			fileInputStream = new FileInputStream("./server/" + fileName);
-			
-			byte[] fileData = new byte[fileInputStream.available()];
-
-			fileInputStream.read(fileData);
+			byte[] fileData = fileInputStream.readAllBytes();
 			fileInputStream.close();
 
+			//write file to client
 			socketOut.writeInt(fileData.length);
 			socketOut.write(fileData);
 	}
