@@ -43,10 +43,14 @@ public class SecureAdditionClient {
 			SSLContext sslContext = SSLContext.getInstance( "TLS" );
 			// SSL handshake
 			sslContext.init( kmf.getKeyManagers(), tmf.getTrustManagers(), null );
-			SSLSocketFactory sslFact = sslContext.getSocketFactory();      	
+			SSLSocketFactory sslFact = sslContext.getSocketFactory();
+
 			SSLSocket client =  (SSLSocket)sslFact.createSocket(host, port);
 			//set encryption methods
-			client.setEnabledCipherSuites( client.getSupportedCipherSuites() );
+			client.setEnabledCipherSuites( new String[]{"TLS_AES_256_GCM_SHA384"});
+			//set client authentication true
+			client.setNeedClientAuth(true);
+
 			System.out.println("\n>>>> SSL/TLS handshake completed");
 
 			//client and server "sockets"
