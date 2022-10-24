@@ -8,7 +8,7 @@
 * This software is mainly tested with netcat and using two different terminals to simulate two different computers
 
 
-* Download netcat here [Link](https://nmap.org/ncat/)
+* Download netcat [here](https://nmap.org/ncat/)
 
 * First run netcat in one terminal and specify a port
 ``nc -nlvp 8080``
